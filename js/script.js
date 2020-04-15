@@ -11,9 +11,6 @@ FSJS project 3 - Interactive Form
 	const activField = document.querySelector('.activities');
 	const payOptions = document.getElementById('payment');
 	const paymentDivs = document.querySelectorAll("#credit-card, #paypal, #bitcoin")
-	const creditCardDiv = document.getElementById('credit-card');
-	const paypalDiv = document.getElementById('paypal');
-	const bitcoinDiv = document.getElementById('bitcoin');
 
 // Set for the site to load with the top most input field ready.
   nameInput.focus();
@@ -101,52 +98,30 @@ FSJS project 3 - Interactive Form
 		}
 		updateCost();
   });
-
-
-		const selectTheme = payOptions.firstElementChild;
-		selectTheme.style.display = 'none';
-		payOptions.selectedIndex = 1; // This can be adjusted, dont understand instructions/expectations
-
-// Hide all payment forms except selected.
-	// function hidePayForms () {
-	// 	for (let i = 0; i < paymentDivs.length; i++){
-	// 	paymentDivs[i].style.display = "none";
-	// 	}
-	//
-	// };
-
-	// for (let i = 0; i < paymentDivs.length; i++) {
-	// 	paymentDivs[i].style.display = "none";
-	//
-	// };
-
-
+// For reset purpose; hides forms unless selected.
+	function hideAllPayForms() {
+		for (let i = 0; i < paymentDivs.length	; i++) {
+			paymentDivs[i].style.display = "none"
+		}
+	}
+	hideAllPayForms();
+// Set default for payment section.
+	paymentDivs[0].style.display = "";
+	const selectPay = payOptions.firstElementChild;
+	selectPay.style.display = 'none';
+	payOptions.selectedIndex = 1;
+// Displays form for selected pay option and hides rest.
 	payOptions.addEventListener('change', (e) => {
 		let payTarget = e.target;
-		let paySelected = payTarget.selectedIndex
-
-		console.log(paySelected);
-
-		creditCardDiv.style.display = "none";
-		paypalDiv.style.display = "none";
-		bitcoinDiv.style.display = "none";
-
-		for (let i = 0; i < paymentDivs.length; i++) {
-
-			if (paySelected[i].value === 'credit card') {
+		const creditCardDiv = document.getElementById('credit-card');
+		const paypalDiv = document.getElementById('paypal');
+		const bitcoinDiv = document.getElementById('bitcoin');
+		hideAllPayForms();
+			if (payTarget.value === 'credit card') {
 				creditCardDiv.style.display = "";
-
-				console.log('credit cards!!!');
-			} else if (paySelected[i].value === 'paypal') {
-
+			} if (payTarget.value === 'paypal') {
 				paypalDiv.style.display = "";
-
-				console.log('paypal!!!');
-			} else if (paySelected[i].value === 'bitcoin') {
-
-
+			} if (payTarget.value === 'bitcoin') {
 					bitcoinDiv.style.display = "";
-					console.log('bitcoin!!!');
 				}
-		}
 	});
