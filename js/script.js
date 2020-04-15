@@ -4,11 +4,16 @@ FSJS project 3 - Interactive Form
 ******************************************/
 
   const nameInput = document.getElementById('name');
-  const designDiv = document.getElementById('design');
-
-  const selectMenu = document.getElementById('title');
-  //let lastOption = selectMenu.lastElementChild;
-  let otherJobRole = document.getElementById('other-title')
+	const otherJobRole = document.getElementById('other-title')
+	const selectMenu = document.getElementById('title');
+	const designDiv = document.getElementById('design');
+  const colorOptions = document.getElementById('color');
+	const activField = document.querySelector('.activities');
+	const payOptions = document.getElementById('payment');
+	const paymentDivs = document.querySelectorAll("#credit-card, #paypal, #bitcoin")
+	const creditCardDiv = document.getElementById('credit-card');
+	const paypalDiv = document.getElementById('paypal');
+	const bitcoinDiv = document.getElementById('bitcoin');
 
 // Set for the site to load with the top most input field ready.
   nameInput.focus();
@@ -24,12 +29,12 @@ FSJS project 3 - Interactive Form
   })
 // The "select theme" text is hidden when the design dropdown is focused.
   designDiv.addEventListener('focus', (e) => {
-    const selectTheme = e.target.firstElementChild;
+		const selectTheme = e.target.firstElementChild;
     selectTheme.style.display = 'none';
   });
 // Filters the color options after making a design selection.
   designDiv.addEventListener('change',() => {
-    const colorOptions = document.getElementById('color');
+
     const punOptions = colorOptions.querySelectorAll("option:nth-child(-n+3)");
     const heartOptions = colorOptions.querySelectorAll("option:nth-child(n+4)");
     for (let i = 0; i < colorOptions.length; i++) {
@@ -39,36 +44,109 @@ FSJS project 3 - Interactive Form
     if (designDiv.options[designDiv.selectedIndex].value == "js puns") {
         for (let i = 0; i < 3; i++) {
           heartOptions[i].style.display = 'none';
+					colorOptions.selectedIndex = 0; //https://stackoverflow.com/questions/8605516/default-select-option-as-blank
         };
     } else if (designDiv.options[designDiv.selectedIndex].value == "heart js") {
         for (let i = 0; i < 3; i++) {
           punOptions[i].style.display = 'none';
+					colorOptions.selectedIndex = 3;
         };
       }
   });
 
-  const activField = document.querySelector('.activities');
-  let totalCost = 0;
+
+// New element to store and display the total cost.
   let costDiv = document.createElement('div');
-  //costDiv.className = "activities";  Do I need this?
-  costDiv.textContent = '$' + totalCost;
+	let totalCost = 0;
+  costDiv.textContent = 'Total: $' + totalCost;
   activField.appendChild(costDiv);
 // Updates the cost shown on the site for every change in the checkox inputs.
   function updateCost() {
-    costDiv.textContent = '$' + totalCost;
+    costDiv.textContent = 'Total: $' + totalCost;
   };
 // Add/Subract the totalCost value with changes to checked status of an input.
-  activField.addEventListener('change', (e) =>{
+// Also disable items with conflicting time.
+  activField.addEventListener('change', (e) => {
     const checkBox = e.target;
     const isChecked = e.target.checked;
     let checkBoxCost = checkBox.dataset.cost;
-    let checkBoxName = checkBox.name;
-    console.log(checkBoxName);
+    let checkBoxDate = checkBox.dataset.dayAndTime;
+    let checkBoxes = activField.querySelectorAll('input');
 
-    if (isChecked) {
-      totalCost += parseInt(checkBoxCost);
-    } else {
-      totalCost -= parseInt(checkBoxCost);
-    }
-    updateCost();
+		if (isChecked) {
+			totalCost += parseInt(checkBoxCost);
+			if (checkBox.name === "all") {
+				for (let i = 1; i < checkBoxes.length; i++){ //wish this were more elegant
+				checkBoxes[i].disabled = true;
+				}
+			}
+			for (let i = 0; i < checkBoxes.length; i++){
+	      if (checkBoxes[i].name !== checkBox.name && checkBoxes[i].dataset.dayAndTime === checkBoxDate) {
+					checkBoxes[i].disabled = true;
+				}
+	    }
+		}
+		if (!isChecked) {
+			totalCost -= parseInt(checkBoxCost);
+			if (checkBox.name === "all") {
+				for (let i = 1; i < checkBoxes.length; i++){
+				checkBoxes[i].disabled = false;
+				}
+			}
+			for (let i = 0; i < checkBoxes.length; i++){
+			 if (checkBoxes[i].name !== checkBox.name && checkBoxes[i].dataset.dayAndTime === checkBoxDate) {
+					checkBoxes[i].disabled = false;
+				}
+	    }
+		}
+		updateCost();
   });
+
+
+		const selectTheme = payOptions.firstElementChild;
+		selectTheme.style.display = 'none';
+		payOptions.selectedIndex = 1; // This can be adjusted, dont understand instructions/expectations
+
+// Hide all payment forms except selected.
+	// function hidePayForms () {
+	// 	for (let i = 0; i < paymentDivs.length; i++){
+	// 	paymentDivs[i].style.display = "none";
+	// 	}
+	//
+	// };
+
+	// for (let i = 0; i < paymentDivs.length; i++) {
+	// 	paymentDivs[i].style.display = "none";
+	//
+	// };
+
+
+	payOptions.addEventListener('change', (e) => {
+		let payTarget = e.target;
+		let paySelected = payTarget.selectedIndex
+
+		console.log(paySelected);
+
+		creditCardDiv.style.display = "none";
+		paypalDiv.style.display = "none";
+		bitcoinDiv.style.display = "none";
+
+		for (let i = 0; i < paymentDivs.length; i++) {
+
+			if (paySelected[i].value === 'credit card') {
+				creditCardDiv.style.display = "";
+
+				console.log('credit cards!!!');
+			} else if (paySelected[i].value === 'paypal') {
+
+				paypalDiv.style.display = "";
+
+				console.log('paypal!!!');
+			} else if (paySelected[i].value === 'bitcoin') {
+
+
+					bitcoinDiv.style.display = "";
+					console.log('bitcoin!!!');
+				}
+		}
+	});
