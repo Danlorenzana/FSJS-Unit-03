@@ -4,13 +4,18 @@ FSJS project 3 - Interactive Form
 ******************************************/
 
   const nameInput = document.getElementById('name');
+	const mailInput = document.getElementById('mail');
 	const otherJobRole = document.getElementById('other-title')
 	const selectMenu = document.getElementById('title');
 	const designDiv = document.getElementById('design');
   const colorOptions = document.getElementById('color');
 	const activField = document.querySelector('.activities');
+	const activityInput = activField.firstElementChild;
 	const payOptions = document.getElementById('payment');
-	const paymentDivs = document.querySelectorAll("#credit-card, #paypal, #bitcoin")
+	const paymentDivs = document.querySelectorAll("#credit-card, #paypal, #bitcoin");
+	const creditCardInput = document.getElementById('cc-num');
+	const zipInput = document.getElementById('zip');
+	const cvvInput = document.getElementById('cvv');
 
 // Set for the site to load with the top most input field ready.
   nameInput.focus();
@@ -72,11 +77,7 @@ FSJS project 3 - Interactive Form
 
 		if (isChecked) {
 			totalCost += parseInt(checkBoxCost);
-			if (checkBox.name === "all") {
-				for (let i = 1; i < checkBoxes.length; i++){ //wish this were more elegant
-				checkBoxes[i].disabled = true;
-				}
-			}
+
 			for (let i = 0; i < checkBoxes.length; i++){
 	      if (checkBoxes[i].name !== checkBox.name && checkBoxes[i].dataset.dayAndTime === checkBoxDate) {
 					checkBoxes[i].disabled = true;
@@ -125,3 +126,85 @@ FSJS project 3 - Interactive Form
 					bitcoinDiv.style.display = "";
 				}
 	});
+
+// Checks that at least 1 checkbox is checked.
+ 	activField.addEventListener('change', (e) => {
+		const activGroup = activField.getElementsByTagName('input');
+		const theSpan = activField.firstElementChild.nextElementSibling;
+		let totalChecked = 0;
+		for (let i = 0; i < activGroup.length	; i++) {
+			if (activGroup[i].checked)
+			totalChecked++
+		}
+		if (totalChecked === 0) {
+				theSpan.style.display = "inherit";
+		} if (totalChecked > 0) {
+				theSpan.style.display = "none";
+			}
+	});
+
+// Add spans(with error fix instructions) to each required input.
+	function createAlerts (target, content){
+		let newSpan = document.createElement('span');
+		newSpan.innerHTML = content;
+		target.parentNode.insertBefore(newSpan, target.nextSibling);
+		newSpan.style.display = "none";
+	}
+	createAlerts(nameInput, 'Entered name can only contain letters A-Z and special characters');
+	createAlerts(mailInput, 'Must enter valid email address');
+	createAlerts(activityInput, 'Please select activity');
+	createAlerts(creditCardInput, 'Credit card should be 13-16 digits');
+	createAlerts(zipInput, 'Enter your 5 digit code');
+	createAlerts(cvvInput, 'Enter 3 digit number on the back of the credit card')
+
+	function isValidName(text) {
+		return /^[a-z ]+$/i.test(text);
+	}
+	function isValidEmail(text) {
+		return /^[^@]+@[^@]+\.[a-z]+$/i.test(text);
+	}
+	function isValidCardNumber(text) {
+		return /^(\d[ -]*?){13,16}$/.test(text);
+	}
+	function isValidZipCode(text) {
+		return /^\d{5}$/.test(text);
+	}
+	function isValidCVV(text){
+		return /^\d{3}$/.test(text);
+	}
+// Show or hide spans
+	function showOrHideTip(show, element) {
+	  if (show) {
+	    element.style.display = "inherit";
+	  } else {
+	    element.style.display = "none";
+	  }
+	}
+	function createListener(validator) {
+	  return e => {
+	    const text = e.target.value;
+	    const valid = validator(text);
+			const showTip = text !== "" && !valid;
+	    const tooltip = e.target.nextElementSibling;
+			showOrHideTip(showTip, tooltip);
+	  };
+	}
+	nameInput.addEventListener("input", createListener(isValidName));
+	mailInput.addEventListener("input", createListener(isValidEmail));
+	creditCardInput.addEventListener("input", createListener(isValidCardNumber));
+	zipInput.addEventListener("input", createListener(isValidZipCode));
+	cvvInput.addEventListener("input", createListener(isValidCVV));
+
+//6:30AM for the onsubmit function... check the credit card section first
+//to be true, and then with the paypal and bitcoin selecetions made
+
+
+/*
+	2 errors I cant figure out:
+	*why selection boxes shift up slightly?
+	*should the entire checkbox line auto gray when disabled, or just the box?
+	*will the errors clear when i apply the submit verifier
+
+	Need to add:
+	CSS normalize and reset
+*/
