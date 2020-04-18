@@ -128,20 +128,20 @@ option {
 }
 
 span {
-	font-size: 1.3em;
+	font-size: 1.7em;
 }
 
 form span {
   font-size: 1.1em;
   text-align: center;
+	line-height: 1.4;
   position: fixed;
   background: tomato;
 	top: 0;
 	left: 0;
   width: 100%;
-  padding: 17px 10px;
+  padding: 15px;
   color: #fff;
-	z-index: 100;
 }
 
 /* =================================
