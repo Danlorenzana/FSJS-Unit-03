@@ -58,14 +58,14 @@ fieldset {
 
 legend,
 button {
-	font-size: 1.25em;
+	font-size: 1.35em;
 }
 
 legend {
 	font-weight: bold;
-	padding-top: .5em;
+	padding-top: 1em;
 	border-top: 2px solid rgba(8, 63, 87, 0.6);
-	margin-bottom: 1.125em;
+/*	margin-bottom: 1.125em; */
 }
 
 input[type="text"],
@@ -128,19 +128,22 @@ option {
 }
 
 span {
-	font-size: 1.7em;
+	font-size: 1.8em;
+
 }
 
 form span {
   font-size: 1.1em;
+	letter-spacing: .2px;
   text-align: center;
-	line-height: 1.4;
+	line-height: 1.45;
   position: fixed;
   background: tomato;
 	top: 0;
 	left: 0;
   width: 100%;
-  padding: 15px;
+  padding-top: 15px;
+	padding-bottom: 25px;
   color: #fff;
 }
 
@@ -181,6 +184,18 @@ form span {
 	padding: 5px;
 	background: rgba(255, 255, 255, 0.1);
 	border-radius: 4px;
+}
+.redArrow {
+	width: 0;
+  height: 0;
+  border-top: 11px solid transparent;
+  border-bottom: 11px solid transparent;
+
+  border-left: 15px solid salmon;
+
+	position: relative;
+	left: -22px;
+	top: -22px;
 }
 
 /* =================================

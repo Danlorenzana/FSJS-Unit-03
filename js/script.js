@@ -5,6 +5,7 @@ FSJS project 3 - Interactive Form
 
 // Global Variables
 		const fsForm = document.querySelector('form');
+		fsForm.parentElement.id = "top";
 	  const nameInput = document.getElementById('name');
 		const mailInput = document.getElementById('mail');
 		const otherJobRole = document.getElementById('other-title')
@@ -122,20 +123,36 @@ FSJS project 3 - Interactive Form
 			let newSpan = document.createElement('span');
 			newSpan.innerHTML = content;
 			target.parentNode.insertBefore(newSpan, target.nextSibling);
-			newSpan.className = "animated slideInDown";
-			newSpan.style.display = "none";
+			newSpan.className = "animated slideInDown spanner";
 		}
-		createAlerts(nameInput, '<u><b>Name:</b></u> numbers may not be used');
-		createAlerts(mailInput, '<u><b>Email:</b></u> must enter valid address');
-		createAlerts(activityInput, '<u><b>Register for Activities:</b></u> please make selection(s)');
-		createAlerts(creditCardInput, '<u><b>Card Number:</b></u> must be 13-16 digits long');
-		createAlerts(zipInput, '<u><b>Zip Code:</b></u> must be 5 digit long');
-		createAlerts(cvvInput, '<u><b>CVV:</b></u> must be 3 digits long.');
+		createAlerts(nameInput, 'Name must not be left blank or use numbers.');
+		createAlerts(mailInput, 'Enter a valid email address; cannot be left blank.');
+		createAlerts(activityInput, 'One or more activities must be selected.');
+		createAlerts(creditCardInput, 'Enter a valid card number; must be between 13 and 16 digits.');
+		createAlerts(zipInput, 'Enter your billing 5 digit zip code.');
+		createAlerts(cvvInput, 'Enter the 3 digits CVV code associated with your payment card.');
 // Necessary variable here to be able to target after created.
-		const theSpan = activField.firstElementChild.nextElementSibling;
+		const spanners = document.querySelectorAll('.spanner');
+		function hideSpanner() {
+			for (let i = 0; i < spanners.length	; i++) {
+				spanners[i].style.display = "none";
+			}
+		}
+		hideSpanner();
+// Creates and adds red arrow shaped divs.
+		const fieldset = document.querySelectorAll('fieldset');
+		function addArrow(field) {
+			let newDiv = document.createElement('div');
+			newDiv.className = "redArrow";
+			field.insertBefore(newDiv, field.firstElementChild);
+			field.firstElementChild.style.visibility = "hidden";
+		}
+		for (let i = 0; i < fieldset.length; i++) {
+			addArrow(fieldset[i]);
+		}
 // Validators for required all fields.
 		function isValidName(text) {
-			return /^[a-z ]+$/i.test(text);
+			return /^[a-z][a-z '-.]*$/i.test(text);
 		}
 		function isValidEmail(text) {
 			return /^[^@]+@[^@]+\.[a-z]+$/i.test(text);
@@ -150,19 +167,55 @@ FSJS project 3 - Interactive Form
 			return /^\d{3}$/.test(text);
 		}
 // Checks that at least 1 checkbox is checked.
- 	activField.addEventListener('change', (e) => {
+ 		activField.addEventListener('change', (e) => {
 			if (totalCost == 0) {
-					theSpan.style.display = "inherit";
+					spanners[2].style.display = "inherit";
+					fieldset[2].firstElementChild.style.visibility = "visible";
+					fieldset[2].firstElementChild.nextElementSibling.style.color = "salmon";
 			} if (totalCost > 0) {
-					theSpan.style.display = "none";
+					hideSpanner();
+					spanners[2].style.display = "none";
+					fieldset[2].firstElementChild.style.visibility = "hidden";
+					fieldset[2].firstElementChild.nextElementSibling.style.color = "rgba(6, 49, 68, 0.9)";
 				}
 		});
 // Conditional function to show or hide fix spans.
 		function showOrHideTip(show, element) {
-		  if (show) {
-		    element.style.display = "inherit";
-		  } else {
-		    element.style.display = "none";
+			let target = element;
+			let ccTarget = element.parentElement.parentElement;
+			function doThis (x){
+				target.style.border = "2px solid salmon";
+				target.nextElementSibling.style.display = "";
+				x.parentElement.firstElementChild.style.visibility = "visible";
+				x.parentElement.firstElementChild.nextElementSibling.style.color = "salmon";
+			}
+			if (show) {
+				hideSpanner();
+				if (element.id === 'name'){
+					doThis(target);
+				}
+				if (element.id === 'mail'){
+					doThis(target);
+				}
+				if (element.id === 'cc-num'){
+					doThis(ccTarget);
+				}
+				if (element.id === 'zip'){
+					doThis(ccTarget);
+				}
+				if (element.id === 'cvv'){
+					doThis(ccTarget);
+				}
+			} else {
+					hideSpanner()
+					element.style.border = "2px solid rgb(111, 157, 220)";
+					if (element.parentElement.parentElement.id === "credit-card") {
+						ccTarget.parentElement.firstElementChild.style.visibility = "hidden";
+						ccTarget.parentElement.firstElementChild.nextElementSibling.style.color = "rgba(6, 49, 68, 0.9)";
+					} else {
+						element.parentElement.firstElementChild.style.visibility = "hidden";
+						element.parentElement.firstElementChild.nextElementSibling.style.color = "rgba(6, 49, 68, 0.9)";
+					}
 		  }
 		}
 // Listener for to process validation functions
@@ -170,61 +223,75 @@ FSJS project 3 - Interactive Form
 		  return e => {
 		    const text = e.target.value;
 		    const valid = validator(text);
-				const showTip = text !== "" && !valid;
-		    const tooltip = e.target.nextElementSibling;
+				const showTip = text === "" || !valid;
+		    const tooltip = e.target;
 				showOrHideTip(showTip, tooltip);
 		  };
 		}
+// Tests string regex while typing.
 		nameInput.addEventListener("input", createListener(isValidName));
 		mailInput.addEventListener("input", createListener(isValidEmail));
 		creditCardInput.addEventListener("input", createListener(isValidCardNumber));
 		zipInput.addEventListener("input", createListener(isValidZipCode));
 		cvvInput.addEventListener("input", createListener(isValidCVV));
-// Form validation: checks each validator before allowing to submit.
+// Listener can ignore nameInput.focus(); avoids load with error message, and will catch if user skips/ignores.
+		nameInput.addEventListener("blur", createListener(isValidName));
+// Displays fix instructions when red input box is selected.
+		zipInput.addEventListener("focus", createListener(isValidZipCode));
+		cvvInput.addEventListener("focus", createListener(isValidCVV));
+		nameInput.addEventListener("focus", createListener(isValidName));
+		mailInput.addEventListener("focus", createListener(isValidEmail));
+		creditCardInput.addEventListener("focus", createListener(isValidCardNumber));
+//Form validation: checks each validator before allowing to submit.
 		fsForm.addEventListener("submit", (e) => {
 			if (payOptions.value == 'credit card') {
 				if (!isValidCVV(cvvInput.value)) {
 					cvvInput.nextElementSibling.style.display = "";
-					cvvInput.nextElementSibling.style.zIndex = 5;
 					cvvInput.focus();
+					fieldset[3].firstElementChild.style.visibility = "visible";
+					fieldset[3].firstElementChild.nextElementSibling.style.color = "salmon";
+					cvvInput.style.border = "2px solid salmon";
 					e.preventDefault();
 				}
 				if (!isValidZipCode(zipInput.value)) {
 					zipInput.nextElementSibling.style.display = "";
-					zipInput.nextElementSibling.style.zIndex = 6;
 					zipInput.focus();
+					fieldset[3].firstElementChild.style.visibility = "visible";
+					fieldset[3].firstElementChild.nextElementSibling.style.color = "salmon";
+					zipInput.style.border = "2px solid salmon";
 					e.preventDefault();
 				}
 				if (!isValidCardNumber(creditCardInput.value)) {
 					creditCardInput.nextElementSibling.style.display = "";
-					creditCardInput.nextElementSibling.style.zIndex = 7;
-					creditCardInput.focus();
+					window.location.href = "#payment";
+					fieldset[3].firstElementChild.style.visibility = "visible";
+					fieldset[3].firstElementChild.nextElementSibling.style.color = "salmon";
+					creditCardInput.style.border = "2px solid salmon";
 					e.preventDefault();
 				}
 			}
 			if (totalCost == 0) {
-				theSpan.style.display = "";
-				theSpan.style.zIndex = 8;
-				theSpan.focus();
+				spanners[2].style.display = "";
+				window.location.href = "#colors-js-puns";
+				fieldset[2].firstElementChild.style.visibility = "visible";
+				fieldset[2].firstElementChild.nextElementSibling.style.color = "salmon";
 				e.preventDefault();
 			}
 			if (!isValidEmail(mailInput.value)) {
 				mailInput.nextElementSibling.style.display = "";
-				mailInput.nextElementSibling.style.zIndex = 9;
-				mailInput.focus();
+				window.location.href = "#top";
+				fieldset[0].firstElementChild.style.visibility = "visible";
+				fieldset[0].firstElementChild.nextElementSibling.style.color = "salmon";
+				mailInput.style.border = "2px solid salmon";
 				e.preventDefault();
 			}
 			if (!isValidName(nameInput.value)) {
 				nameInput.nextElementSibling.style.display = "";
-				nameInput.nextElementSibling.style.zIndex = 10;
-				nameInput.focus();
+				window.location.href = "#top";
+				fieldset[0].firstElementChild.style.visibility = "visible";
+				fieldset[0].firstElementChild.nextElementSibling.style.color = "salmon";
+				nameInput.style.border = "2px solid salmon";
 				e.preventDefault();
 		 	}
+			hideSpanner();
 		});
-
-/*
-	3 errors I cant figure out:
-	* why does the text in selection boxes shift up slightly?
-	* should the entire checkbox line auto gray when disabled? or just the box? how to gray the text too?
-	* cannot get focus() on activities. 
-*/
