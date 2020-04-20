@@ -36,26 +36,36 @@ FSJS project 3 - Interactive Form
 			const selectTheme = e.target.firstElementChild;
 	    selectTheme.style.display = 'none';
 	  });
+// Add "Please select a T-shirt theme" to the color options dropdown and show.
+		const selectAColorTheme = document.createElement('option');
+		selectAColorTheme.textContent = "Please select a T-shirt theme";
+		colorOptions[0].parentNode.insertBefore(selectAColorTheme, colorOptions.firstElementChild);
+		colorOptions.selectedIndex = 0;
+		for (let i = 0; i < colorOptions.length; i++) {
+			colorOptions[i].style.display = 'none';
+		};
+		colorOptions.parentElement.style.display = "none";
 // Filters the available colors after making a design selection.
-	  designDiv.addEventListener('change',(e) => {
-			const designTarget = e.target;
-			const punOptions = colorOptions.querySelectorAll("option:nth-child(-n+3)");
-	    const heartOptions = colorOptions.querySelectorAll("option:nth-child(n+4)");
-	    for (let i = 0; i < colorOptions.length; i++) {
-	      colorOptions[i].style.display = '';
-	    };
-	    if (designTarget.value == "js puns") {
-	        for (let i = 0; i < 3; i++) {
-	          heartOptions[i].style.display = 'none';
+  	designDiv.addEventListener('change',(e) => {
+		colorOptions.parentElement.style.display = "";
+		const designTarget = e.target;
+		const punOptions = colorOptions.querySelectorAll("option:nth-child(-n+4)");
+    const heartOptions = colorOptions.querySelectorAll("option:nth-child(n+5)");
+		for (let i = 1; i < colorOptions.length; i++) {
+			colorOptions[i].style.display = '';
+		};
+    if (designTarget.value == "js puns") {
+        for (let i = 0; i < heartOptions.length; i++) {
+          heartOptions[i].style.display = 'none';
 // Shows desired option in drop-down menu --> https://stackoverflow.com/questions/8605516/default-select-option-as-blank
-						colorOptions.selectedIndex = 0;
-	        };
-	    } else if (designTarget.value == "heart js") {
-	        for (let i = 0; i < 3; i++) {
-	          punOptions[i].style.display = 'none';
-						colorOptions.selectedIndex = 3;
-	        };
-	      }
+				}
+				colorOptions.selectedIndex = 1;
+    } else if (designTarget.value == "heart js") {
+        for (let i = 0; i < punOptions.length; i++) {
+          punOptions[i].style.display = 'none';
+        }
+				colorOptions.selectedIndex = 4;
+      }
 	  });
 // New element stores and shows the total cost of selected activities.
 	  let costDiv = document.createElement('div');
@@ -128,7 +138,8 @@ FSJS project 3 - Interactive Form
 		createAlerts(nameInput, 'Name must not be left blank or use numbers.');
 		createAlerts(mailInput, 'Enter a valid email address; cannot be left blank.');
 		createAlerts(activityInput, 'One or more activities must be selected.');
-		createAlerts(creditCardInput, 'Enter a valid card number; must be between 13 and 16 digits.');
+		createAlerts(creditCardInput, 'Use numbers only; must be 13 to 16 digits.');
+		createAlerts(creditCardInput, 'Enter valid Credit Card number.');
 		createAlerts(zipInput, 'Enter your billing 5 digit zip code.');
 		createAlerts(cvvInput, 'Enter the 3 digits CVV code associated with your payment card.');
 // Necessary variable here to be able to target after created.
@@ -155,7 +166,7 @@ FSJS project 3 - Interactive Form
 			return /^[a-z][a-z '-.]*$/i.test(text);
 		}
 		function isValidEmail(text) {
-			return /^[^@]+@[^@]+\.[a-z]+$/i.test(text);
+			return /^[^@]+@[^@]+\.[a-z][a-z]+$/i.test(text);
 		}
 		function isValidCardNumber(text) {
 			return /^(\d[ -]*?){13,16}$/.test(text);
@@ -172,7 +183,7 @@ FSJS project 3 - Interactive Form
 					spanners[2].style.display = "inherit";
 					fieldset[2].firstElementChild.style.visibility = "visible";
 					fieldset[2].firstElementChild.nextElementSibling.style.color = "salmon";
-			} if (totalCost > 0) {
+			} else {
 					hideSpanner();
 					spanners[2].style.display = "none";
 					fieldset[2].firstElementChild.style.visibility = "hidden";
@@ -185,7 +196,7 @@ FSJS project 3 - Interactive Form
 			let ccTarget = element.parentElement.parentElement;
 			function doThis (x){
 				target.style.border = "2px solid salmon";
-				target.nextElementSibling.style.display = "";
+
 				x.parentElement.firstElementChild.style.visibility = "visible";
 				x.parentElement.firstElementChild.nextElementSibling.style.color = "salmon";
 			}
@@ -193,18 +204,29 @@ FSJS project 3 - Interactive Form
 				hideSpanner();
 				if (element.id === 'name'){
 					doThis(target);
+					target.nextElementSibling.style.display = "";
 				}
 				if (element.id === 'mail'){
 					doThis(target);
+					target.nextElementSibling.style.display = "";
 				}
+// Display different fix instruction for credit card inputs.
 				if (element.id === 'cc-num'){
-					doThis(ccTarget);
+					if (element.value.length == 0) {
+						doThis(ccTarget);
+						spanners[3].style.display = "";
+				} else {
+						doThis(ccTarget);
+						spanners[4].style.display = "";
+					}
 				}
 				if (element.id === 'zip'){
 					doThis(ccTarget);
+					target.nextElementSibling.style.display = "";
 				}
 				if (element.id === 'cvv'){
 					doThis(ccTarget);
+					target.nextElementSibling.style.display = "";
 				}
 			} else {
 					hideSpanner()
